@@ -2,77 +2,198 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Petanque v1.0</title>
-
-    <!-- PWA & Apple iOS Metadata -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Petanque">
-    <link rel="apple-touch-icon" href="icon-192.png">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verdeling aantal ploegen</title>
     <style>
         :root {
-            --bg-color: #f4f6f8;
-            --card-bg: #ffffff;
-            --primary: #1e3a8a;
-            --text: #1f2937;
+            --primary: #1F4E79;
+            --secondary: #2F5597;
+            --bg: #F4F6F9;
+            --card-bg: #FFFFFF;
+            --text: #333333;
+            --accent: #D9E1F2;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
+            background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 20px;
-            padding-top: calc(20px + env(safe-area-inset-top));
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
+            padding: 16px;
         }
-
         .container {
-            width: 100%;
-            max-width: 480px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
         }
-
         h1 {
-            color: var(--primary);
-            margin-bottom: 8px;
-            font-size: 1.5rem;
+            background-color: var(--primary);
+            color: white;
+            font-size: 1.25rem;
+            text-align: center;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
-        p {
-            color: #6b7280;
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 16px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            color: var(--primary);
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 2px solid #CBD5E1;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background-color: var(--accent);
+            text-align: center;
+            font-weight: bold;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        button.btn-calc {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+            margin-top: 4px;
+        }
+        button.btn-calc:active {
+            background-color: var(--secondary);
+        }
+        .results h2 {
+            font-size: 1rem;
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 6px;
+            margin-top: 0;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #F1F5F9;
             font-size: 0.95rem;
+        }
+        .result-row:last-child {
+            border-bottom: none;
+        }
+        .result-label {
+            color: #64748B;
+        }
+        .result-value {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .error {
+            background-color: #FEE2E2;
+            color: #991B1B;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        .success {
+            background-color: #DCFCE7;
+            color: #166534;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Petanque v1.0</h1>
-        <p>Welkom bij de Petanque PWA.</p>
+<div class="container">
+    <h1>Verdeling aantal ploegen</h1>
+
+    <div class="card">
+        <div class="input-group">
+            <label for="var1">Aantal spelers:</label>
+            <input type="number" id="var1">
+        </div>
+        <div class="input-group">
+            <label for="var2">Aantal velden:</label>
+            <input type="number" id="var2">
+        </div>
+        <button class="btn-calc" onclick="calculate()">Bereken</button>
     </div>
 
-    <script>
-        // Registreer de Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW geregistreerd!', reg))
-                    .catch(err => console.error('SW fout:', err));
-            });
+    <div class="card results">
+        <h2>Optimale Oplossing</h2>
+        <div id="output"></div>
+    </div>
+</div>
+
+<script>
+function calculate() {
+    const val1Input = document.getElementById('var1').value;
+    const val2Input = document.getElementById('var2').value;
+    const outputDiv = document.getElementById('output');
+
+    if (val1Input === "" || val2Input === "") {
+        outputDiv.innerHTML = `<div class="error">Vul alstublieft beide velden in.</div>`;
+        return;
+    }
+
+    const N = parseInt(val1Input);
+    const M = parseInt(val2Input);
+
+    if (isNaN(N) || isNaN(M)) {
+        outputDiv.innerHTML = `<div class="error">Vul geldige getallen in.</div>`;
+        return;
+    }
+
+    let bestSolution = null;
+
+    let maxY = Math.floor(N / 3);
+    for (let y = 0; y <= maxY; y++) {
+        let remainder = N - (y * 3);
+        if (remainder % 2 === 0) {
+            let x = remainder / 2;
+            let sumXY = x + y;
+            
+            if (sumXY % 2 === 0) {
+                let formulaVal = Math.floor(sumXY / 2);
+                if (formulaVal <= M) {
+                    bestSolution = { x: x, y: y, formulaVal: formulaVal };
+                    break;
+                }
+            }
         }
-    </script>
+    }
+
+    if (bestSolution) {
+        outputDiv.innerHTML = `
+            <div class="result-row"><span class="result-label">2 spelers</span><span class="result-value">${bestSolution.x}</span></div>
+            <div class="result-row"><span class="result-label">3 spelers</span><span class="result-value">${bestSolution.y}</span></div>
+            <div class="result-row"><span class="result-label">Aantal velden</span><span class="result-value">${bestSolution.formulaVal}</span></div>
+            <div style="margin-top: 12px;" class="error success">Geldige oplossing gevonden!</div>
+        `;
+    } else {
+        outputDiv.innerHTML = `<div class="error">Geen enkele combinatie voldoet aan alle strenge randvoorwaarden voor Aantal spelers=${N} en Aantal velden=${M}.</div>`;
+    }
+}
+</script>
+
 </body>
 </html>
